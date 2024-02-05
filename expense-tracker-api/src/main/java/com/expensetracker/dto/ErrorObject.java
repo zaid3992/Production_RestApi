@@ -1,4 +1,4 @@
-package com.expensetracker.entity;
+package com.expensetracker.dto;
 
 
 import java.util.Date;

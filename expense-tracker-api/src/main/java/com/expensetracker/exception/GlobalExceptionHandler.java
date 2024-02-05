@@ -17,7 +17,7 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.expensetracker.entity.ErrorObject;
+import com.expensetracker.dto.ErrorObject;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{//ResponseEntityExceptionHandler is use to customize error response 
@@ -42,7 +42,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{//Res
 		return new ResponseEntity<ErrorObject>(errorObject,HttpStatus.NOT_FOUND);
 	}
 	
-	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)// required int but passing string 
 	public ResponseEntity<ErrorObject> handleMethosArgMismatchException(MethodArgumentTypeMismatchException ex,WebRequest request){
 		ErrorObject errorObject =  new ErrorObject();
 		errorObject.setStatusCode(HttpStatus.BAD_REQUEST.value());
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{//Res
 	
 	@Override
 		protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
-				HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+				HttpHeaders headers, HttpStatusCode status, WebRequest request) {/* when we put validation and thrn customize error reponse*/
 		Map<String, Object> body= new HashMap<>();
 		body.put("timestamp", new Date());
 		body.put("statusCode", HttpStatus.BAD_REQUEST.value());
@@ -69,7 +69,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler{//Res
 		
 		return new ResponseEntity<Object>(body,HttpStatus.BAD_REQUEST);
 
+	}
+	
+	@ExceptionHandler(ItemAlreadyExistsException.class)
+	public ResponseEntity<ErrorObject> handleExpenseExistsException(ItemAlreadyExistsException ex,WebRequest request){
+		ErrorObject errorObject =  new ErrorObject();
+		errorObject.setStatusCode(HttpStatus.CONFLICT.value());
+		errorObject.setMessage(ex.getMessage());
+		errorObject.setTimestamp(new Date());
 		
-		
+		return new ResponseEntity<ErrorObject>(errorObject,HttpStatus.CONFLICT);
 	}
 }
